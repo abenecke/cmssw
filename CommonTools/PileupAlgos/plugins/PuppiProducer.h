@@ -51,6 +51,7 @@ private:
         bool fUseFromPVLooseTight;
 	bool            fUseDZ;
 	float           fDZCut;
+	double           fEtaMinUseDz;
         double fPtMaxCharged;
 	float           fPtMax;
         double fPtMaxNeutralsStartSlope;

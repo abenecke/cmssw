@@ -27,6 +27,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPuppiForLeptons = iConfig.getParameter<bool>("puppiForLeptons");
   fUseFromPVLooseTight = iConfig.getParameter<bool>("UseFromPVLooseTight");
   fUseDZ     = iConfig.getParameter<bool>("UseDeltaZCut");
+  fEtaMinUseDz     = iConfig.getParameter<double>("EtaMinUseDz");
   fDZCut     = iConfig.getParameter<double>("DeltaZCut");
   fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
   fPtMax     = iConfig.getParameter<double>("PtMaxNeutrals");
@@ -59,6 +60,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
     produces<std::vector<double>> ("PuppiAlphas");
     produces<std::vector<double>> ("PuppiAlphasMed");
     produces<std::vector<double>> ("PuppiAlphasRms");
+    produces<std::vector<double>> ("MyPuppiWeights");
   }
 }
 // ------------------------------------------------------------------------------------------
@@ -135,10 +137,12 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       }
       int tmpFromPV = 0;  
+      //      bool isfromPUvtx1or2 = false; \\Laurents Tune
       // mocking the miniAOD definitions
       if (std::abs(pReco.charge) > 0){
         if (closestVtx != nullptr && pVtxId > 0) tmpFromPV = 0;
         if (closestVtx != nullptr && pVtxId == 0) tmpFromPV = 3;
+	//	if (closestVtx != nullptr && (pVtxId == 1 || pVtxId == 2) ) isfromPUvtx1or2 = true;//Laurents Tune
         if (closestVtx == nullptr && closestVtxForUnassociateds == 0) tmpFromPV = 2;
         if (closestVtx == nullptr && closestVtxForUnassociateds != 0) tmpFromPV = 1;
       }
@@ -147,7 +151,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pReco.id = 0; 
       if (std::abs(pReco.charge) == 0){ pReco.id = 0; }
       else{
-        if (tmpFromPV == 0){ pReco.id = 2; } // 0 is associated to PU vertex
+	if (tmpFromPV == 0){ pReco.id = 2; } // 0 is associated to PU vertex
+	//	if (tmpFromPV == 0 && isfromPUvtx1or2 && std::abs(pDZ) <0.2 ){  pReco.id = 1; } //Laurents Tune
+	//	else  if (tmpFromPV == 0){ pReco.id = 2; } //Laurents Tune
         else if (tmpFromPV == 3){ pReco.id = 1; }
         else if (tmpFromPV == 1 || tmpFromPV == 2){ 
           pReco.id = 0;
@@ -171,14 +177,18 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pReco.id = 0; 
       if (std::abs(pReco.charge) == 0){ pReco.id = 0; }
       if (std::abs(pReco.charge) > 0){
-        if (lPack->fromPV() == 0){ pReco.id = 2; } // 0 is associated to PU vertex
+	if (lPack->fromPV() == 0){ pReco.id = 2; } // 0 is associated to PU vertex
+	// if (pvCol->size() >= 3 && lPack->fromPV() == 0 && std::abs(pDZ) <0.2 && (lPack->fromPV(1) >=2 || lPack->fromPV(2) >=2)) { pReco.id = 1; } //Laurent Tune
+	// else if (pvCol->size() == 2 && lPack->fromPV() == 0 && std::abs(pDZ) <0.2 && (lPack->fromPV(1) >=2)) { pReco.id = 1; } //Laurent Tune
+	// else if (lPack->fromPV() == 0){ pReco.id = 2; } //Laurent Tune
         else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)){ pReco.id = 1; }
         else if (lPack->fromPV() == (pat::PackedCandidate::PVTight) || lPack->fromPV() == (pat::PackedCandidate::PVLoose)){ 
           pReco.id = 0;
-          if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+          if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged)){
             pReco.id = 1;
-          else if (fUseDZ)
-            pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
+	  }
+	  else if ((fUseDZ) && (std::abs(pReco.eta) > fEtaMinUseDz))
+	    pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
           else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
             pReco.id = 2;
           else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVTight))
@@ -328,12 +338,15 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::unique_ptr<std::vector<double> > theAlphasRms(new std::vector<double>(fPuppiContainer->puppiAlphasRMS()));
     std::unique_ptr<std::vector<double> > alphas(new std::vector<double>(fPuppiContainer->puppiRawAlphas()));
     std::unique_ptr<double> nalgos(new double(fPuppiContainer->puppiNAlgos()));
-    
+        std::unique_ptr<std::vector<double> > puppiweights(new std::vector<double>(fPuppiContainer->puppiWeights()));        
+
+
     iEvent.put(std::move(alphas),"PuppiRawAlphas");
     iEvent.put(std::move(nalgos),"PuppiNAlgos");
     iEvent.put(std::move(theAlphas),"PuppiAlphas");
     iEvent.put(std::move(theAlphasMed),"PuppiAlphasMed");
     iEvent.put(std::move(theAlphasRms),"PuppiAlphasRms");
+    iEvent.put(std::move(puppiweights),"MyPuppiWeights");
   }
   
 }
@@ -352,6 +365,7 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("UseFromPVLooseTight", false);
   desc.add<bool>("UseDeltaZCut", true);
   desc.add<double>("DeltaZCut", 0.3);
+  desc.add<double>("EtaMinUseDz", 2.4);
   desc.add<double>("PtMaxCharged", 0.);
   desc.add<double>("PtMaxNeutrals", 200.);
   desc.add<double>("PtMaxNeutralsStartSlope", 0.);
