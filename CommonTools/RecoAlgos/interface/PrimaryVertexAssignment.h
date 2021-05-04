@@ -41,7 +41,12 @@ public:
         maxDxySigForNotReconstructedPrimary_(iConfig.getParameter<double>("maxDxySigForNotReconstructedPrimary")),
         maxDxyForNotReconstructedPrimary_(iConfig.getParameter<double>("maxDxyForNotReconstructedPrimary")),
         useTiming_(iConfig.getParameter<bool>("useTiming")),
-        preferHighRanked_(iConfig.getParameter<bool>("preferHighRanked")) {}
+        preferHighRanked_(iConfig.getParameter<bool>("preferHighRanked")),
+        fNumOfPUVtxsForCharged_(iConfig.getParameter<int>("NumOfPUVtxsForCharged")),
+        fDzCutForChargedFromPUVtxs_(iConfig.getParameter<double>("DzCutForChargedFromPUVtxs")),
+        fPtMaxCharged_(iConfig.getParameter<double>("PtMaxCharged")),
+        fEtaMinUseDz_(iConfig.getParameter<double>("EtaMinUseDz")),
+        fOnlyUseFirstDz_(iConfig.getParameter<bool>("OnlyUseFirstDz")) {}
 
   ~PrimaryVertexAssignment() {}
 
@@ -112,6 +117,11 @@ private:
   double maxDxyForNotReconstructedPrimary_;
   bool useTiming_;
   bool preferHighRanked_;
+  int fNumOfPUVtxsForCharged_;
+  double fDzCutForChargedFromPUVtxs_;
+  double fPtMaxCharged_;
+  double fEtaMinUseDz_;
+  bool fOnlyUseFirstDz_;
 };
 
 #endif

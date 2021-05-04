@@ -1606,6 +1606,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 task.add(process.pfNoPileUpJMETask)
                 configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = True )
+                getattr(process, "primaryVertexAssociationJME"+postfix).particles = pfCandCollection
                 getattr(process, "pfPileUpJME"+postfix).PFCandidates = cms.InputTag("tmpPFCandCollPtr"+postfix)
                 addToProcessAndTask("pfNoPileUpJME"+postfix,
                         getattr(process, "pfNoPileUpJME"+postfix).clone( 
