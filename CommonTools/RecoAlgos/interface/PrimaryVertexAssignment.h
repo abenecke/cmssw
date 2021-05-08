@@ -103,14 +103,21 @@ public:
                                                                        const edm::View<reco::Candidate>& jets,
                                                                        const TransientTrackBuilder& builder) const {
     float time = 0, timeResolution = -1;
-    if (useTiming_ && pfcand.timeError()>0) {
+    if (useTiming_ && pfcand.timeError() > 0) {
       time = pfcand.time();
       timeResolution = pfcand.timeError();
     }
     if (!pfcand.hasTrackDetails())
       return std::pair<int, PrimaryVertexAssignment::Quality>(-1, PrimaryVertexAssignment::Unassigned);
     else
-      return chargedHadronVertex(vertices, (pfcand.pvAssociationQuality()>=pat::PackedCandidate::UsedInFitLoose)?pfcand.vertexRef().key():-1, &pfcand.pseudoTrack(), time, timeResolution, jets, builder);
+      return chargedHadronVertex(
+          vertices,
+          (pfcand.pvAssociationQuality() >= pat::PackedCandidate::UsedInFitLoose) ? pfcand.vertexRef().key() : -1,
+          &pfcand.pseudoTrack(),
+          time,
+          timeResolution,
+          jets,
+          builder);
   }
 
   std::pair<int, PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices,
