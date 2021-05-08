@@ -28,6 +28,19 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     }
     index++;
   }
+  return chargedHadronVertex(vertices, iVertex, track, time, timeReso, jets, builder);
+}
+
+std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::chargedHadronVertex(
+    const reco::VertexCollection& vertices,
+    int iVertex,
+    const reco::Track* track,
+    float time,
+    float timeReso,  // <0 if timing not available for this object
+    const edm::View<reco::Candidate>& jets,
+    const TransientTrackBuilder& builder) const {
+  typedef reco::VertexCollection::const_iterator IV;
+  typedef reco::Vertex::trackRef_iterator IT;
 
   bool useTime = useTiming_;
   if (edm::isNotFinite(time) || timeReso < 1e-6) {

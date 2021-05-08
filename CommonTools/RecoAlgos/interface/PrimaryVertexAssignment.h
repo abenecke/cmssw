@@ -12,6 +12,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
@@ -61,6 +62,15 @@ public:
 
   std::pair<int, PrimaryVertexAssignment::Quality> chargedHadronVertex(
       const reco::VertexCollection& vertices,
+      int iVertex,
+      const reco::Track* track,
+      float trackTime,
+      float trackTimeResolution,  // <0 if timing not available for this object
+      const edm::View<reco::Candidate>& jets,
+      const TransientTrackBuilder& builder) const;
+
+  std::pair<int, PrimaryVertexAssignment::Quality> chargedHadronVertex(
+      const reco::VertexCollection& vertices,
       const reco::TrackRef& trackRef,
       float trackTime,
       float trackTimeResolution,  // <0 if timing not available for this object
@@ -85,8 +95,24 @@ public:
         return chargedHadronVertex(vertices, pfcand.trackRef(), time, timeResolution, jets, builder);
     }
     return chargedHadronVertex(
-        vertices, reco::TrackRef(), &(*pfcand.gsfTrackRef()), time, timeResolution, jets, builder);
+        vertices, 0, &(*pfcand.gsfTrackRef()), time, timeResolution, jets, builder);
   }
+
+  std::pair<int, PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices,
+                                                                       const pat::PackedCandidate& pfcand,
+                                                                       const edm::View<reco::Candidate>& jets,
+                                                                       const TransientTrackBuilder& builder) const {
+    float time = 0, timeResolution = -1;
+    if (useTiming_ && pfcand.timeError()>0) {
+      time = pfcand.time();
+      timeResolution = pfcand.timeError();
+    }
+    if (!pfcand.hasTrackDetails())
+      return std::pair<int, PrimaryVertexAssignment::Quality>(-1, PrimaryVertexAssignment::Unassigned);
+    else
+      return chargedHadronVertex(vertices, (pfcand.pvAssociationQuality()>=pat::PackedCandidate::UsedInFitLoose)?pfcand.vertexRef().key():-1, &pfcand.pseudoTrack(), time, timeResolution, jets, builder);
+  }
+
   std::pair<int, PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices,
                                                                        const reco::RecoChargedRefCandidate& chcand,
                                                                        const edm::ValueMap<float>* trackTimeTag,
