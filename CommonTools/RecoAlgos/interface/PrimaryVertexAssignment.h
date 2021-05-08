@@ -95,7 +95,7 @@ public:
         return chargedHadronVertex(vertices, pfcand.trackRef(), time, timeResolution, jets, builder);
     }
     return chargedHadronVertex(
-        vertices, 0, &(*pfcand.gsfTrackRef()), time, timeResolution, jets, builder);
+        vertices, reco::TrackRef(), &(*pfcand.gsfTrackRef()), time, timeResolution, jets, builder);
   }
 
   std::pair<int, PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices,
