@@ -61,6 +61,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
     produces<std::vector<double>> ("PuppiAlphas");
     produces<std::vector<double>> ("PuppiAlphasMed");
     produces<std::vector<double>> ("PuppiAlphasRms");
+    produces<std::vector<double>> ("MyPuppiWeights");
   }
 }
 // ------------------------------------------------------------------------------------------
@@ -356,12 +357,14 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::unique_ptr<std::vector<double> > theAlphasRms(new std::vector<double>(fPuppiContainer->puppiAlphasRMS()));
     std::unique_ptr<std::vector<double> > alphas(new std::vector<double>(fPuppiContainer->puppiRawAlphas()));
     std::unique_ptr<double> nalgos(new double(fPuppiContainer->puppiNAlgos()));
-    
+    std::unique_ptr<std::vector<double> > puppiweights(new std::vector<double>(fPuppiContainer->puppiWeights()));        
+
     iEvent.put(std::move(alphas),"PuppiRawAlphas");
     iEvent.put(std::move(nalgos),"PuppiNAlgos");
     iEvent.put(std::move(theAlphas),"PuppiAlphas");
     iEvent.put(std::move(theAlphasMed),"PuppiAlphasMed");
     iEvent.put(std::move(theAlphasRms),"PuppiAlphasRms");
+    iEvent.put(std::move(puppiweights),"MyPuppiWeights");
   }
   
 }
