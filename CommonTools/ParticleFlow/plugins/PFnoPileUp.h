@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PatAlgos_PATPackedPFnoPileUp_
-#define PhysicsTools_PatAlgos_PATPackedPFnoPileUp_
+#ifndef CommonTools_ParticleFlow_PFnoPileUp_
+#define CommonTools_ParticleFlow_PFnoPileUp_
 
 // system include files
 #include <memory>
@@ -17,7 +17,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/Association.h"
 
-/**\class PATPackedPFnoPileUp
+/**\class PFnoPileUp
 \brief Identifies pile-up candidates from a collection of Candidates, and
 produces the corresponding collection of NoPileUpCandidates.
 
@@ -26,14 +26,14 @@ produces the corresponding collection of NoPileUpCandidates.
 
 */
 
-class PATPackedPFnoPileUp : public edm::stream::EDProducer<> {
+class PFnoPileUp : public edm::stream::EDProducer<> {
 public:
   typedef edm::View<reco::Candidate> CandidateView;
   typedef edm::Association<reco::VertexCollection> CandToVertex;
 
-  explicit PATPackedPFnoPileUp(const edm::ParameterSet&);
+  explicit PFnoPileUp(const edm::ParameterSet&);
 
-  ~PATPackedPFnoPileUp() override;
+  ~PFnoPileUp() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 

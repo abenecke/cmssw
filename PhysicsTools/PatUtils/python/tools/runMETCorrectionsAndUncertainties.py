@@ -1595,6 +1595,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                         getattr(process, "pfNoPileUpJME"+postfix).clone( 
                         bottomCollection = cms.InputTag("tmpPFCandCollPtr"+postfix) ),
                         process, task )
+                getattr(process, "pfNoPileUpJME"+postfix).vertexAssociation = cms.InputTag('primaryVertexAssociationJME'+postfix,'original')
                 pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
                 patMetModuleSequence += getattr(process, "tmpPFCandCollPtr"+postfix)
                 patMetModuleSequence += getattr(process, "pfNoPileUpJME"+postfix)
@@ -1665,9 +1666,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         task = getPatAlgosToolsTask(process)
 
         from PhysicsTools.PatAlgos.pfNoPileUpJME_cff import pfNoPileUpJME, primaryVertexAssociationJME
-        addToProcessAndTask("primaryVertexAssociationJME",primaryVertexAssociationJME, process, task)
-        patMetModuleSequence += getattr(process, "primaryVertexAssociationJME")
+        addToProcessAndTask("primaryVertexAssociationJME"+postfix,primaryVertexAssociationJME, process, task)
+        patMetModuleSequence += getattr(process, "primaryVertexAssociationJME"+postfix)
         addToProcessAndTask("pfNoPileUpJME"+postfix, pfNoPileUpJME, process, task)
+        getattr(process, "primaryVertexAssociationJME"+postfix).particles = pfCandCollection
+        getattr(process, "pfNoPileUpJME"+postfix).candidates = pfCandCollection
+        getattr(process, "pfNoPileUpJME"+postfix).vertexAssociation = cms.InputTag('primaryVertexAssociationJME'+postfix,'original')
         from RecoMET.METProducers.pfMet_cfi import pfMet
         pfMetCHS = pfMet.clone(src = "pfNoPileUpJME"+postfix)
         addToProcessAndTask("pfMetCHS", pfMetCHS, process, task)

@@ -1,4 +1,4 @@
-#include "PhysicsTools/PatAlgos/plugins/PATPackedPFnoPileUp.h"
+#include "CommonTools/ParticleFlow/plugins/PFnoPileUp.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -12,7 +12,7 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-PATPackedPFnoPileUp::PATPackedPFnoPileUp(const edm::ParameterSet& iConfig) {
+PFnoPileUp::PFnoPileUp(const edm::ParameterSet& iConfig) {
   tokenCandidatesView_ = consumes<CandidateView>(iConfig.getParameter<InputTag>("candidates"));
   vertexAssociationQuality_ = iConfig.getParameter<int>("vertexAssociationQuality");
   tokenVertexAssociation_ = consumes<CandToVertex>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
@@ -21,9 +21,9 @@ PATPackedPFnoPileUp::PATPackedPFnoPileUp(const edm::ParameterSet& iConfig) {
   produces<edm::PtrVector<reco::Candidate>>();
 }
 
-PATPackedPFnoPileUp::~PATPackedPFnoPileUp() {}
+PFnoPileUp::~PFnoPileUp() {}
 
-void PATPackedPFnoPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
+void PFnoPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
   unique_ptr<edm::PtrVector<reco::Candidate>> pOutput(new edm::PtrVector<reco::Candidate>);
   Handle<CandidateView> candidateView;
   iEvent.getByToken(tokenCandidatesView_, candidateView);
@@ -42,4 +42,4 @@ void PATPackedPFnoPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(pOutput));
 }
 
-DEFINE_FWK_MODULE(PATPackedPFnoPileUp);
+DEFINE_FWK_MODULE(PFnoPileUp);
