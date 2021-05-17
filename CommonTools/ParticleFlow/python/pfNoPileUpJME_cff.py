@@ -16,6 +16,10 @@ def adapt(primaryVertexAssociationJME):
   primaryVertexAssociationJME.assignment.OnlyUseFirstDz = True
   from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
   phase2_common.toModify(
+    primaryVertexAssociationJME,
+    EtaMinUseDz = 4.0
+    )
+  phase2_common.toModify(
     primaryVertexAssociationJME.assignment,
     maxDzForPrimaryAssignment=0.1
     )

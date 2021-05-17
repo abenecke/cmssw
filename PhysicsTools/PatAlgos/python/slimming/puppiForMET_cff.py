@@ -12,10 +12,7 @@ def makePuppies( process ):
 
 def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
     task = getPatAlgosToolsTask(process)
-    from CommonTools.RecoAlgos.primaryVertexAssociationPacked_cfi import primaryVertexAssociation
-    process.primaryVertexAssociationJME=primaryVertexAssociation.clone(vertices = 'offlineSlimmedPrimaryVertices')
-    from CommonTools.ParticleFlow.pfNoPileUpJME_cff import adapt
-    adapt(process.primaryVertexAssociationJME)
+    process.load('PhysicsTools.PatAlgos.pfNoPileUpJME_cff')
     task.add(process.primaryVertexAssociationJME)
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     task.add(process.puppi)

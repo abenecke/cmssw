@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from CommonTools.RecoAlgos.sortedPackedPrimaryVertices_cfi import sortedPackedPrimaryVertices
+from PhysicsTools.PatAlgos.sortedPackedPrimaryVertices_cfi import sortedPackedPrimaryVertices
 
 primaryVertexAssociation = sortedPackedPrimaryVertices.clone(
   qualityForPrimary = 2,
