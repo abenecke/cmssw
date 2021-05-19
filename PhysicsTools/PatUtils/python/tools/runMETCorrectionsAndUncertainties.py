@@ -1590,7 +1590,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 task.add(process.pfNoPileUpJMETask)
                 configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = True )
                 getattr(process, "primaryVertexAssociationJME"+postfix).particles = pfCandCollection
-                getattr(process, "pfNoPileUpJME"+postfix).PFCandidates = cms.InputTag("tmpPFCandCollPtr"+postfix)
+                getattr(process, "pfPileUpJME"+postfix).PFCandidates = cms.InputTag("tmpPFCandCollPtr"+postfix)
                 addToProcessAndTask("pfNoPileUpJME"+postfix,
                         getattr(process, "pfNoPileUpJME"+postfix).clone( 
                         bottomCollection = cms.InputTag("tmpPFCandCollPtr"+postfix) ),
@@ -1666,9 +1666,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         task = getPatAlgosToolsTask(process)
 
         from PhysicsTools.PatAlgos.pfNoPileUpJME_cff import pfNoPileUpJME, primaryVertexAssociationJME
-        addToProcessAndTask("primaryVertexAssociationJME"+postfix,getattr(process,"primaryVertexAssociationJME").clone(), process, task)
+        addToProcessAndTask("primaryVertexAssociationJME"+postfix,primaryVertexAssociationJME.clone(), process, task)
         patMetModuleSequence += getattr(process, "primaryVertexAssociationJME"+postfix)
-        addToProcessAndTask("pfNoPileUpJME"+postfix,getattr(process, "pfNoPileUpJME").clone(), process, task)
+        addToProcessAndTask("pfNoPileUpJME"+postfix,pfNoPileUpJME.clone(), process, task)
         getattr(process, "primaryVertexAssociationJME"+postfix).particles = pfCandCollection
         getattr(process, "pfNoPileUpJME"+postfix).candidates = pfCandCollection
         getattr(process, "pfNoPileUpJME"+postfix).vertexAssociation = cms.InputTag('primaryVertexAssociationJME'+postfix,'original')
