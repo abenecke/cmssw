@@ -91,6 +91,8 @@ double PuppiContainer::var_within_R(int iId, const vector<PuppiCandidate> & part
 
     double const r2 = R * R;
     double var = 0.;
+    // default alpha for partiles without surrounders
+    //    double var = -2.;
 
     for (auto const &cand : particles) {
       if (std::abs(cand.rapidity - centre.rapidity) < R) {
@@ -118,6 +120,7 @@ double PuppiContainer::var_within_R(int iId, const vector<PuppiCandidate> & part
 
     if ((var != 0.) and ((iId == 0) or (iId == 3) or (iId == 5)))
       var = log(var);
+    else if(var==0.) var = -2;
     else if (iId == 1)
       var += centre.pt;
 
