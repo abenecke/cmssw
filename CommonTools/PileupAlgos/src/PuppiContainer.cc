@@ -148,6 +148,7 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<PuppiCandidate> const &iCons
             or (std::abs(iConstits[i0].eta) < fPuppiAlgo[pPupId].etaMaxExtrap() and iConstits[i0].puppi_register != 0)) {
           pVal = goodVar(iConstits[i0],pCharged ? iChargedParticles : iParticles,pAlgo,pCone);
         }
+	if(pVal==-2) continue;
         fVals.push_back(pVal);
 
         if( ! edm::isFinite(pVal)) {
@@ -169,7 +170,6 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<PuppiCandidate> const &iCons
               pCone    = fPuppiAlgo[i1].coneSize (iOpt);
               curVal = goodVar(iConstits[i0],pCharged ? iChargedParticles : iParticles,pAlgo,pCone);
             }
-
             fPuppiAlgo[i1].add(iConstits[i0],curVal,iOpt);
         }
     }

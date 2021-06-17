@@ -5,7 +5,7 @@
 #include "Math/SpecFuncMathCore.h"
 #include "Math/ProbFunc.h"
 #include "TMath.h"
-
+#include <iostream>
 
 PuppiAlgo::PuppiAlgo(edm::ParameterSet &iConfig) {
     fEtaMin             = iConfig.getParameter<std::vector< double > >("etaMin");
@@ -173,6 +173,7 @@ void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
 
     // fRMS_perEta[iAlgo]    *= cur_RMSEtaSF;
     // fMedian_perEta[iAlgo] *= cur_MedEtaSF;
+    std::cout<<"Median " << fMedian[5]<<std::endl;
 
     for (unsigned int j0 = 0; j0 < fEtaMin.size(); j0++){
         fRMS_perEta[iAlgo][j0] = fRMS[iAlgo]*fRMSEtaSF[j0];
