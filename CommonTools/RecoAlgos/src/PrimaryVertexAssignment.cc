@@ -104,6 +104,7 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     }
   }
 
+
   // first use "closest in Z" with tight cuts (targetting primary particles)
   const float add_cov = vtxIdMinSignif >= 0 ? vertices[vtxIdMinSignif].covariance(2, 2) : 0.f;
   const float dzE = sqrt(track->dzError() * track->dzError() + add_cov);
