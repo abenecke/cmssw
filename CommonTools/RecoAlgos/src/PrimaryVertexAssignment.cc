@@ -48,6 +48,9 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     time = 0.;
     timeReso = -1.;
   }
+  
+  double etaprint = 2.0;
+  //  if(track->eta()>etaprint)std::cout<<"ivertex at the beginning  "<<iVertex<<std::endl;
 
   if (preferHighRanked_) {
     for (IV iv = vertices.begin(); iv != vertices.end(); ++iv) {
@@ -78,6 +81,8 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
   if (useVertexFit_ && (iVertex >= 0))
     return {iVertex, PrimaryVertexAssignment::UsedInFit};
 
+  //  if(track->eta()>etaprint)std::cout<<"after useVertexFit_"<<std::endl;
+
   double distmin = std::numeric_limits<double>::max();
   double dzmin = std::numeric_limits<double>::max();
   double dtmin = std::numeric_limits<double>::max();
@@ -107,20 +112,26 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     }
   }
 
+  //  if(track->eta()>etaprint)std::cout<<"after vertex finding  "<<vtxIdMinSignif<<std::endl;
+
   // protect high pT particles from association to pileup vertices and assign them to the first vertex
   if ((fPtMaxCharged_ > 0) && (vtxIdMinSignif >= 0) && (track->pt() > fPtMaxCharged_)) {
+    //    if(track->eta()>etaprint)std::cout<<"in the charged particle protection  "<< vtxIdMinSignif <<std::endl;
     iVertex = 0;
   } else {
     // first use "closest in Z" with tight cuts (targetting primary particles)
     const float add_cov = vtxIdMinSignif >= 0 ? vertices[vtxIdMinSignif].covariance(2, 2) : 0.f;
     const float dzE = sqrt(track->dzError() * track->dzError() + add_cov);
     if (!fOnlyUseFirstDz_) {
+      //      if(track->eta()>etaprint)std::cout<<" use !fOnlyUseFirstDz_  dzmin: "<< dzmin<<" < "<<maxDzForPrimaryAssignment_<<"  dzE: "<<dzmin /dzE<<" < "<<maxDzSigForPrimaryAssignment_<< "  track->dzError(): "<<track->dzError()<<" < "<<maxDzErrorForPrimaryAssignment_<<std::endl;
+
       if (vtxIdMinSignif >= 0 and
           (dzmin < maxDzForPrimaryAssignment_ and dzmin / dzE < maxDzSigForPrimaryAssignment_ and
            track->dzError() < maxDzErrorForPrimaryAssignment_) and
           (!useTime or dtmin / timeReso < maxDtSigForPrimaryAssignment_))
         iVertex = vtxIdMinSignif;
     } else {
+      //      if(track->eta()>etaprint)std::cout<<" use fOnlyUseFirstDz_"<<std::endl;
       // consider only distances to first vertex for association of pileup vertices (originally used in PUPPI)
       if ((vtxIdMinSignif >= 0) && (std::abs(track->eta()) > fEtaMinUseDz_))
         iVertex =
@@ -128,9 +139,12 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
               track->dzError() < maxDzErrorForPrimaryAssignment_) and
              (!useTime or std::abs(time - vertices.at(0).t()) / timeReso < maxDtSigForPrimaryAssignment_))
                 ? 0
-                : vtxIdMinSignif;
+			      //                : vtxIdMinSignif;
+                : -1;
     }
   }
+
+  //  if(track->eta()>etaprint)std::cout<<"at the end "<< iVertex<<std::endl;
 
   if (iVertex >= 0)
     return {iVertex, PrimaryVertexAssignment::PrimaryDz};
@@ -172,6 +186,8 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
       iVertex = vtxIdx;
     }
   }
+
+  //  std::cout<<" after btagging "<<iVertex<<std::endl;
   if (iVertex >= 0)
     return {iVertex, PrimaryVertexAssignment::BTrack};
 
