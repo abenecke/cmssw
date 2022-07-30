@@ -72,9 +72,11 @@ private:
   bool fPuppiNoLep;
   bool fUseFromPVLooseTight;
   bool fUseDZ;
+  bool fUseTiming;
   bool fUseDZforPileup;
   double fDZCut;
   double fEtaMinUseDZ;
+  double fMaxDtSig;
   double fPtMaxCharged;
   double fEtaMaxCharged;
   double fPtMaxPhotons;
@@ -96,9 +98,11 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPuppiNoLep = iConfig.getParameter<bool>("puppiNoLep");
   fUseFromPVLooseTight = iConfig.getParameter<bool>("UseFromPVLooseTight");
   fUseDZ = iConfig.getParameter<bool>("UseDeltaZCut");
+  fUseTiming = iConfig.getParameter<bool>("UseTiming");
   fUseDZforPileup = iConfig.getParameter<bool>("UseDeltaZCutForPileup");
   fDZCut = iConfig.getParameter<double>("DeltaZCut");
   fEtaMinUseDZ = iConfig.getParameter<double>("EtaMinUseDeltaZ");
+  fMaxDtSig = iConfig.getParameter<double>("maxDtSigForPrimaryAssignment");
   fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
   fEtaMaxCharged = iConfig.getParameter<double>("EtaMaxCharged");
   fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
@@ -193,6 +197,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pReco.pdgId = aPF.pdgId();
       const reco::Vertex* closestVtx = nullptr;
       double pDZ = -9999;
+      double pDt = -9999;
+      double pTimeError = -9999;
       double pD0 = -9999;
       uint pVtxId = 0;
       bool isLepton = ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13));
@@ -295,6 +301,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
       } else if (lPack->vertexRef().isNonnull()) {
         pDZ = lPack->dz();
+	pDt = lPack->dtime(0);
+	pTimeError = lPack->timeError();
         pD0 = lPack->dxy();
         pReco.dZ = pDZ;
         pReco.d0 = pD0;
@@ -326,6 +334,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               pReco.id = 1;
             else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
+	    else if((fUseTiming) && (fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ) && (std::abs(pDZ) < fDZCut) && pDt/pTimeError < fMaxDtSig)
+	      pReco.id = 1;
             else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ) && (std::abs(pDZ) < fDZCut))
               pReco.id = 1;
             else if ((fUseDZforPileup) && (std::abs(pReco.eta) >= fEtaMinUseDZ) && (std::abs(pDZ) >= fDZCut))
@@ -496,6 +506,8 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("UseFromPVLooseTight", false);
   desc.add<bool>("UseDeltaZCut", true);
   desc.add<bool>("UseDeltaZCutForPileup", true);
+  desc.add<bool>("UseTiming", false);
+  desc.add<double>("maxDtSigForPrimaryAssignment", 1e10);
   desc.add<double>("DeltaZCut", 0.3);
   desc.add<double>("EtaMinUseDeltaZ", 0.);
   desc.add<double>("PtMaxCharged", -1.);
